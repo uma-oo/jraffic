@@ -1,27 +1,41 @@
 package jraffic;
 
 import javafx.scene.input.KeyCode;
-
+import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import java.util.*;
 // BLUE -> straight 
 // MAGENTA -> left
 // YELLOW -> right 
 
 public class Car {
 
-    private Color color;
+    private ColorV color;
     private Direction direction;
     private Lane lane;
     private double heightScene;
     private double widthScene;
-    private static final double WIDTH = 50;
+    private static final double WIDTH = 48;
+    private Rectangle rectangle;
+
+    private static List<Car> cars = new ArrayList<>();
 
     private Point position;
 
-    public Car(KeyCode key, double height, double width) {
+    public Car(KeyCode key, double height, double width, Pane pane) {
         heightScene = height;
         widthScene = width;
         setLane(key);
-        setColor(Color.randomColor());
+        setColor(ColorV.randomColor());
+        setPosition(getLane());
+        rectangle = new Rectangle(WIDTH, WIDTH);
+        rectangle.setTranslateX(this.getPosition().getX());
+        rectangle.setTranslateY(this.getPosition().getY());
+        rectangle.setFill(ColorV.getColor(this.color));
+        cars.add(this);
+        this.draw();
+        pane.getChildren().add(rectangle);
     }
 
     // constructor
@@ -30,7 +44,7 @@ public class Car {
         return this.direction;
     }
 
-    public Color getColor() {
+    public ColorV getColor() {
         return this.color;
     }
 
@@ -48,7 +62,7 @@ public class Car {
 
     }
 
-    public void setColor(Color color) {
+    public void setColor(ColorV color) {
         this.color = color;
     }
 
@@ -80,18 +94,52 @@ public class Car {
     public void setPosition(Lane lane) {
         switch (lane) {
             case WEST:
-                setPosition(new Point(0, 0));
+                setPosition(new Point(widthScene - 50, heightScene / 2 - 50));
                 break;
             case NORTH:
-                setPosition(new Point(0, 0));
+                setPosition(new Point(widthScene / 2 - 50, 0));
                 break;
             case EAST:
-                setPosition(new Point(0, 0));
+                setPosition(new Point(0, heightScene / 2));
                 break;
             case SOUTH:
-                setPosition(new Point(0, 0));
+                System.out.println(heightScene);
+                setPosition(new Point(widthScene / 2, heightScene - 50));
                 break;
 
+        }
+    }
+
+    public void setRectangle(Rectangle rectangle) {
+        this.rectangle = rectangle;
+    }
+
+    public void draw() {
+        rectangle.setTranslateX(this.getPosition().getX());
+        rectangle.setTranslateY(this.getPosition().getY());
+    }
+
+    public void update() {
+        // if (position.getX() == 0 || position.getX() == widthScene || position.getX()
+        // == -widthScene
+        // || position.getY() == 0 || position.getY() == widthScene || position.getY()
+        // == -widthScene) {
+        // cars.remove(cars.indexOf(this));
+        // }
+        Pair<Double, Double> delta = Lane.getPixelsToAdd(lane);
+        Point current = this.getPosition();
+        double newX = current.getX() + delta.getFirst();
+        double newY = current.getY() + delta.getSecond();
+        this.setPosition(new Point(newX, newY));
+        System.out.println("inside the update");
+        System.out.println(rectangle.getX());
+
+    }
+
+    public static void updateCars(Pane pane) {
+        for (Car car : cars) {
+            car.update();
+            car.draw();
         }
     }
 
