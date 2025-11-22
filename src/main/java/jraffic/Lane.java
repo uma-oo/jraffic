@@ -19,6 +19,24 @@ public enum Lane {
         return VALUES.get(RANDOM.nextInt(SIZE));
     }
 
+    // public static Lane turnLeft(Lane lane) {
+    //     return switch (lane) {
+    //         case NORTH -> EAST;
+    //         case EAST -> SOUTH;
+    //         case SOUTH -> WEST;
+    //         case WEST -> NORTH;
+    //     };
+    // }
+
+    public static Lane turnRight(Lane lane) {
+        return switch (lane) {
+            case NORTH -> WEST;
+            case WEST -> SOUTH;
+            case SOUTH -> EAST;
+            case EAST -> NORTH;
+        };
+    }
+
     // DirectionLane::South => (0, -1),
     // DirectionLane::West => (-1, 0),
     // DirectionLane::East => (1, 0),

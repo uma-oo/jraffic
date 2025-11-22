@@ -1,16 +1,17 @@
 package jraffic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.scene.input.KeyCode;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-import java.util.*;
+import javafx.scene.shape.Rectangle;
 // BLUE -> straight 
 // MAGENTA -> left
 // YELLOW -> right 
 
 public class Car {
-
+    
     private ColorV color;
     private Direction direction;
     private Lane lane;
@@ -18,10 +19,11 @@ public class Car {
     private double widthScene;
     private static final double WIDTH = 48;
     private Rectangle rectangle;
-
     private static List<Car> cars = new ArrayList<>();
 
     private Point position;
+
+    Sprites sprites = Sprites.load();
 
     public Car(KeyCode key, double height, double width, Pane pane) {
         heightScene = height;
