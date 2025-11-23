@@ -4,6 +4,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.Pane;
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 // BLUE -> straight 
 // MAGENTA -> left
@@ -45,6 +47,10 @@ public class Car {
         pane.getChildren().add(rectangle);
     }
 
+    public static List<Car> getCars() {
+        return cars;
+    }
+
     // constructor
 
     public Direction getDirection() {
@@ -79,6 +85,10 @@ public class Car {
 
     public void setDirection(Direction direction) {
         this.direction = direction;
+    }
+
+    public void setHasToStop(boolean hasToStop) {
+        this.hasToStop = hasToStop;
     }
 
     public void setLane(KeyCode key) {
@@ -137,6 +147,10 @@ public class Car {
     }
 
     public void update() {
+        if (hasToStop && isNotSafe()) {
+            return;
+        }
+
         Pair<Double, Double> delta = Lane.getPixelsToAdd(lane);
         Point current = this.getPosition();
         double newX = current.getX() + delta.getFirst();
@@ -237,6 +251,61 @@ public class Car {
 
         return true;
 
+    }
+
+    /// checks collision of the car with the line of the lane
+    public boolean isNotSafe() {
+
+        // filter cars based on which lane the cars belongs to !
+
+        List<Car> CARS_SOUTH = cars.stream().filter(car -> car.getLane() == Lane.SOUTH && car != this)
+                .collect(Collectors.toList());
+        List<Car> CARS_NORTH = cars.stream().filter(car -> car.getLane() == Lane.NORTH && car != this)
+                .collect(Collectors.toList());
+        List<Car> CARS_EAST = cars.stream().filter(car -> car.getLane() == Lane.EAST && car != this)
+                .collect(Collectors.toList());
+        List<Car> CARS_WEST = cars.stream().filter(car -> car.getLane() == Lane.WEST && car != this)
+                .collect(Collectors.toList());
+        // compare if one car has to stop if it reaches the line or if the distance of
+        // them is less than 10px
+
+        switch (getLane()) {
+            case SOUTH:
+                System.out.println("inside the south");
+                for (Car c : CARS_SOUTH) {
+                    if (Math.abs(c.getPosition().getY() - this.getPosition().getY()) < GAP) {
+                        System.out.println("inside the if hereee");
+                        return true;
+                    }
+                }
+                return (this.getPosition().getY() == heightScene / 2 + 50);
+
+            case NORTH:
+                for (Car c : CARS_NORTH) {
+                    if (Math.abs(c.getPosition().getY() - this.getPosition().getY()) < GAP) {
+                        return true;
+                    }
+                }
+                return (this.getPosition().getY() == heightScene / 2 - 100);
+            case EAST:
+                for (Car c : CARS_EAST) {
+                    if (Math.abs(c.getPosition().getX() - this.getPosition().getX()) < GAP) {
+                        return true;
+                    }
+                }
+                return (this.getPosition().getX() == widthScene / 2 - 100);
+            case WEST:
+                for (Car c : CARS_WEST) {
+                    if (Math.abs(c.getPosition().getX() - this.getPosition().getX()) < GAP) {
+                        return true;
+                    }
+                }
+                return (this.getPosition().getX() == widthScene / 2 + 50);
+            default:
+                break;
+        }
+
+        return false;
     }
 
 }

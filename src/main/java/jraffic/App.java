@@ -55,17 +55,22 @@ public class App extends Application {
                         break;
                 }
 
-    
             }
+
         });
+
+        for (LightTraffic light : LightTraffic.geLightTraffics()) {
+
+            pane.getChildren().add(light.getRectangle());
+        }
 
         new AnimationTimer() {
             @Override
             public void handle(long currentNanoTime) {
                 Car.updateCars(pane);
+                LightTraffic.UpdateLights(pane);
             }
         }.start();
-        
 
         stage.setScene(scene);
         stage.setResizable(false);
