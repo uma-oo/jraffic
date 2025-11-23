@@ -3,8 +3,8 @@ package jraffic;
 import javafx.scene.input.KeyCode;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import java.util.*;
+
 // BLUE -> straight 
 // MAGENTA -> left
 // YELLOW -> right 
@@ -28,7 +28,9 @@ public class Car {
         widthScene = width;
         setLane(key);
         setColor(ColorV.randomColor());
+        setDirection(Direction.getDirection(getColor()));
         setPosition(getLane());
+
         rectangle = new Rectangle(WIDTH, WIDTH);
         rectangle.setTranslateX(this.getPosition().getX());
         rectangle.setTranslateY(this.getPosition().getY());
@@ -70,6 +72,10 @@ public class Car {
         this.color = color;
     }
 
+    public void setDirection(Direction direction) {
+        this.direction = direction;
+    }
+
     public void setLane(KeyCode key) {
         switch (key) {
             case UP:
@@ -98,7 +104,8 @@ public class Car {
     public void setPosition(Lane lane) {
         switch (lane) {
             case WEST:
-                setPosition(new Point(widthScene - 50, heightScene / 2 - 50));
+
+                setPosition(new Point(widthScene, heightScene / 2 - 50));
                 break;
             case NORTH:
                 setPosition(new Point(widthScene / 2 - 50, 0));
@@ -107,7 +114,6 @@ public class Car {
                 setPosition(new Point(0, heightScene / 2));
                 break;
             case SOUTH:
-                System.out.println(heightScene);
                 setPosition(new Point(widthScene / 2, heightScene - 50));
                 break;
 
@@ -124,20 +130,55 @@ public class Car {
     }
 
     public void update() {
-        // if (position.getX() == 0 || position.getX() > widthScene || position.getX() >
-        // -widthScene
-        // || position.getY() == 0 || position.getY() == widthScene || position.getY()
-        // == -widthScene) {
-        // cars.remove(cars.indexOf(this));
-        // pane.getChildren().remove(this);
-        // }
         Pair<Double, Double> delta = Lane.getPixelsToAdd(lane);
         Point current = this.getPosition();
         double newX = current.getX() + delta.getFirst();
         double newY = current.getY() + delta.getSecond();
         this.setPosition(new Point(newX, newY));
-        System.out.println("inside the update");
-        System.out.println(rectangle.getX());
+
+        switch (this.direction) {
+            case LEFT:
+                if (this.position.getX() == widthScene / 2
+                        && this.position.getY() == heightScene / 2 - 50 && this.getLane() == Lane.SOUTH) {
+                    this.lane = Lane.WEST;
+                    this.direction = Direction.STRAIGHT;
+                } else if (this.position.getX() == widthScene / 2 - 50
+                        && this.position.getY() == heightScene / 2 && this.getLane() == Lane.NORTH) {
+                    this.lane = Lane.EAST;
+                    this.direction = Direction.STRAIGHT;
+                } else if (this.position.getX() == widthScene / 2 
+                        && this.position.getY() == heightScene / 2 && this.getLane() == Lane.EAST) {
+                    this.lane = Lane.SOUTH;
+                    this.direction = Direction.STRAIGHT;
+                } else if (this.position.getX() == widthScene / 2 -50
+                        && this.position.getY() == heightScene / 2 -50  && this.getLane() == Lane.WEST) {
+                    this.lane = Lane.NORTH;
+                    this.direction = Direction.STRAIGHT;
+                }
+                break;
+            case RIGHT:
+                if (this.position.getX() == widthScene / 2
+                        && this.position.getY() == heightScene / 2 && this.getLane() == Lane.SOUTH) {
+                    this.lane = Lane.EAST;
+                    this.direction = Direction.STRAIGHT;
+                } else if (this.position.getX() == widthScene / 2 - 50
+                        && this.position.getY() == heightScene / 2 - 50 && this.getLane() == Lane.NORTH) {
+                    this.lane = Lane.WEST;
+                    this.direction = Direction.STRAIGHT;
+                } else if (this.position.getX() == widthScene / 2 - 50
+                        && this.position.getY() == heightScene / 2 && this.getLane() == Lane.EAST) {
+                    this.lane = Lane.NORTH;
+                    this.direction = Direction.STRAIGHT;
+                } else if (this.position.getX() == widthScene / 2
+                        && this.position.getY() == heightScene / 2 - 50 && this.getLane() == Lane.WEST) {
+                    this.lane = Lane.SOUTH;
+                    this.direction = Direction.STRAIGHT;
+                }
+                break;
+
+            default:
+                break;
+        }
 
     }
 
@@ -145,6 +186,10 @@ public class Car {
         double x = position.getX();
         double y = position.getY();
         return x < 0 || x > widthScene || y < 0 || y > heightScene;
+    }
+
+    private void checkCollision() {
+
     }
 
     public static void updateCars(Pane pane) {
@@ -155,7 +200,7 @@ public class Car {
             car.update();
             car.draw();
             if (car.isOutOfBounds()) {
-                // the iterator modifies the cars instead :) 
+                // the iterator modifies the cars instead :)
                 iteratorCars.remove();
                 int index = pane.getChildren().indexOf(car.getRectangle());
                 if (index != -1) {
@@ -164,7 +209,6 @@ public class Car {
             }
         }
 
-        System.out.println("Length of cars: " + cars.size());
     }
 
 }

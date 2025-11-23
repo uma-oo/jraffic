@@ -16,4 +16,9 @@ public class Pair<A, B> {
     public B getSecond() {
         return second;
     }
+
+    @Override
+    public String toString() {
+        return  String.format("X: %f   Y: %f", (double)getFirst(), (double)getSecond()); 
+    }
 }
