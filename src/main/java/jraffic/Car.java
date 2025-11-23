@@ -132,8 +132,9 @@ public class Car {
     public void update() {
         Pair<Double, Double> delta = Lane.getPixelsToAdd(lane);
         Point current = this.getPosition();
-        double newX = current.getX() + delta.getFirst();
-        double newY = current.getY() + delta.getSecond();
+        //double speed = 0.2;
+        double newX = current.getX() + delta.getFirst() ;
+        double newY = current.getY() + delta.getSecond() ;
         this.setPosition(new Point(newX, newY));
 
         switch (this.direction) {
@@ -191,6 +192,10 @@ public class Car {
     private void checkCollision() {
 
     }
+    public static List<Car> getCars() {
+    return cars;
+}
+
 
     public static void updateCars(Pane pane) {
         Iterator<Car> iteratorCars = cars.iterator();

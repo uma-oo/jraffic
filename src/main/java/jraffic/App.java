@@ -63,11 +63,14 @@ public class App extends Application {
         });
 
         new AnimationTimer() {
-            @Override
-            public void handle(long currentNanoTime) {
-                Car.updateCars(pane);
-            }
-        }.start();
+    @Override
+    public void handle(long currentNanoTime) {
+        Car.updateCars(pane);
+
+        TrafficLight.updateTrafficLights(trafficLightsList, Car.getCars());
+    }
+}.start();
+
         
 
         stage.setScene(scene);
