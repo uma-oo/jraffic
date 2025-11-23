@@ -33,6 +33,8 @@ public class App extends Application {
 
         pane.getChildren().addAll(setupRoutes());
         scene = new Scene(pane, WIDTH, HEIGHT);
+        List<TrafficLight> trafficLightsList = TrafficLight.setupTrafficLights(pane);
+
 
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
