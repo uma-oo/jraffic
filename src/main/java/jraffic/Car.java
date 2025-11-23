@@ -56,6 +56,10 @@ public class Car {
         return this.position;
     }
 
+    public Rectangle getRectangle() {
+        return this.rectangle;
+    }
+
     // setters
     public void setLane(Lane lane) {
         this.lane = lane;
@@ -120,11 +124,12 @@ public class Car {
     }
 
     public void update() {
-        // if (position.getX() == 0 || position.getX() == widthScene || position.getX()
-        // == -widthScene
+        // if (position.getX() == 0 || position.getX() > widthScene || position.getX() >
+        // -widthScene
         // || position.getY() == 0 || position.getY() == widthScene || position.getY()
         // == -widthScene) {
         // cars.remove(cars.indexOf(this));
+        // pane.getChildren().remove(this);
         // }
         Pair<Double, Double> delta = Lane.getPixelsToAdd(lane);
         Point current = this.getPosition();
@@ -136,11 +141,30 @@ public class Car {
 
     }
 
+    private boolean isOutOfBounds() {
+        double x = position.getX();
+        double y = position.getY();
+        return x < 0 || x > widthScene || y < 0 || y > heightScene;
+    }
+
     public static void updateCars(Pane pane) {
-        for (Car car : cars) {
+        Iterator<Car> iteratorCars = cars.iterator();
+
+        while (iteratorCars.hasNext()) {
+            Car car = iteratorCars.next();
             car.update();
             car.draw();
+            if (car.isOutOfBounds()) {
+                // the iterator modifies the cars instead :) 
+                iteratorCars.remove();
+                int index = pane.getChildren().indexOf(car.getRectangle());
+                if (index != -1) {
+                    pane.getChildren().remove(pane.getChildren().indexOf(car.getRectangle()));
+                }
+            }
         }
+
+        System.out.println("Length of cars: " + cars.size());
     }
 
 }
