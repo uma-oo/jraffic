@@ -1,13 +1,8 @@
 package jraffic;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.layout.Pane;
-import java.util.*;
 
 // BLUE -> straight 
 // MAGENTA -> left
@@ -21,7 +16,10 @@ public class Car {
     private double heightScene;
     private double widthScene;
     private static final double WIDTH = 48;
+    private static final double GAP = 60;
     private Rectangle rectangle;
+    private boolean hasToStop = false;
+
     private static List<Car> cars = new ArrayList<>();
 
     private Point position;
@@ -35,6 +33,9 @@ public class Car {
         setColor(ColorV.randomColor());
         setDirection(Direction.getDirection(getColor()));
         setPosition(getLane());
+        if (!isSafe(lane, getPosition())) {
+            return;
+        }
 
         rectangle = new Rectangle(WIDTH, WIDTH);
         rectangle.setTranslateX(this.getPosition().getX());
@@ -129,6 +130,9 @@ public class Car {
     }
 
     public void draw() {
+        if (rectangle == null) {
+            return;
+        }
         rectangle.setTranslateX(this.getPosition().getX());
         rectangle.setTranslateY(this.getPosition().getY());
     }
@@ -150,12 +154,12 @@ public class Car {
                         && this.position.getY() == heightScene / 2 && this.getLane() == Lane.NORTH) {
                     this.lane = Lane.EAST;
                     this.direction = Direction.STRAIGHT;
-                } else if (this.position.getX() == widthScene / 2 
+                } else if (this.position.getX() == widthScene / 2
                         && this.position.getY() == heightScene / 2 && this.getLane() == Lane.EAST) {
                     this.lane = Lane.SOUTH;
                     this.direction = Direction.STRAIGHT;
-                } else if (this.position.getX() == widthScene / 2 -50
-                        && this.position.getY() == heightScene / 2 -50  && this.getLane() == Lane.WEST) {
+                } else if (this.position.getX() == widthScene / 2 - 50
+                        && this.position.getY() == heightScene / 2 - 50 && this.getLane() == Lane.WEST) {
                     this.lane = Lane.NORTH;
                     this.direction = Direction.STRAIGHT;
                 }
@@ -189,7 +193,7 @@ public class Car {
     private boolean isOutOfBounds() {
         double x = position.getX();
         double y = position.getY();
-        return x < 0 || x > widthScene || y < 0 || y > heightScene;
+        return x < -50 || x > widthScene + 50 || y < -50 || y > heightScene + 50;
     }
 
     private void checkCollision() {
@@ -212,6 +216,27 @@ public class Car {
                 }
             }
         }
+
+    }
+
+    public static boolean isSafe(Lane lane, Point position) {
+        if (lane == null || position == null) {
+            return false;
+        }
+
+        for (Car car : cars) {
+            if (lane == Lane.SOUTH && Math.abs(position.getY() - car.getPosition().getY()) <= GAP) {
+                return false;
+            } else if (lane == Lane.NORTH && Math.abs(car.getPosition().getY() - position.getY()) <= GAP) {
+                return false;
+            } else if (lane == Lane.WEST && Math.abs(position.getX() - car.getPosition().getX()) <= GAP) {
+                return false;
+            } else if (lane == Lane.EAST && Math.abs(position.getX() - car.getPosition().getX()) <= GAP) {
+                return false;
+            }
+        }
+
+        return true;
 
     }
 
