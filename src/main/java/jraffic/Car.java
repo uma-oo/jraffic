@@ -1,5 +1,9 @@
 package jraffic;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Rectangle;
@@ -9,7 +13,7 @@ import javafx.scene.shape.Rectangle;
 // YELLOW -> right 
 
 public class Car {
-    
+
     private ColorV color;
     private Direction direction;
     private Lane lane;
