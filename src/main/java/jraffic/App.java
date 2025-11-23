@@ -83,6 +83,7 @@ public class App extends Application {
 
                 while (now - lastUpdate >= frameInterval) {
                     Car.updateCars(pane);
+                    TrafficLight.updateTrafficLights(trafficLightsList, Car.getCars());
 
                     frames++;
                     lastUpdate += frameInterval;
