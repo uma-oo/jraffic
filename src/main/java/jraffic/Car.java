@@ -132,9 +132,9 @@ public class Car {
     public void update() {
         Pair<Double, Double> delta = Lane.getPixelsToAdd(lane);
         Point current = this.getPosition();
-        //double speed = 0.2;
-        double newX = current.getX() + delta.getFirst() ;
-        double newY = current.getY() + delta.getSecond() ;
+        double speed = 0.2;
+        double newX = current.getX() + delta.getFirst() * speed ;
+        double newY = current.getY() + delta.getSecond() * speed;
         this.setPosition(new Point(newX, newY));
 
         switch (this.direction) {

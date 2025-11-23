@@ -107,4 +107,9 @@ public class TrafficLight {
             light.setGreen(light.direction == dir);
         }
     }
+
+
+    public static Directionl getCurrentGreen() {
+    return currentGreen;
+  }
 }
