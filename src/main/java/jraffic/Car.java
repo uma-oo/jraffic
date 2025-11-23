@@ -109,7 +109,6 @@ public class Car {
     public void setPosition(Lane lane) {
         switch (lane) {
             case WEST:
-
                 setPosition(new Point(widthScene, heightScene / 2 - 50));
                 break;
             case NORTH:

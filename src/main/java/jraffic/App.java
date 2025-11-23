@@ -1,19 +1,21 @@
 package jraffic;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyCode;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
-import javafx.event.EventHandler;
-
-import java.io.IOException;
-import java.util.*;
 
 /**
  * JavaFX App
@@ -28,9 +30,11 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         // create the lines based on the width and the height of the stage
         // stage.setWidth(800);
-
         Pane pane = new Pane();
-
+        // fps label
+        Label label = new Label();
+        pane.getChildren().add(label);
+        
         pane.getChildren().addAll(setupRoutes());
         scene = new Scene(pane, WIDTH, HEIGHT);
 
@@ -56,18 +60,41 @@ public class App extends Application {
                         break;
                 }
 
-    
             }
         });
 
-        new AnimationTimer() {
-            @Override
-            public void handle(long currentNanoTime) {
-                Car.updateCars(pane);
-            }
-        }.start();
-        
+        AnimationTimer timer = new AnimationTimer() {
+            private final int targetFps = 60;
+            private final long frameInterval = 1_000_000_000L / targetFps;
 
+            private long lastUpdate = 0;
+            private long lastFpsTime = 0;
+            private int frames = 0;
+
+            @Override
+            public void handle(long now) {
+                if (lastUpdate == 0) {
+                    lastUpdate = now;
+                    lastFpsTime = now;
+                    return;
+                }
+
+                while (now - lastUpdate >= frameInterval) {
+                    Car.updateCars(pane);
+
+                    frames++;
+                    lastUpdate += frameInterval;
+                }
+
+                if (now - lastFpsTime >= 1_000_000_000L) {
+                    label.setText("FPS: " + frames);
+                    frames = 0;
+                    lastFpsTime = now;
+                }
+            }
+        };
+
+        timer.start();
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
