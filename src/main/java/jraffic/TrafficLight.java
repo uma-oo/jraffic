@@ -30,10 +30,10 @@ public class TrafficLight {
         // Feux pour chaque direction
  TrafficLight topLight = new TrafficLight(479, 322, false);    // haut
  TrafficLight downLight = new TrafficLight(479, 478, false);   // bas
- TrafficLight leftLight = new TrafficLight(320, 360, false);   // gauche
-// TrafficLight rightLight = new TrafficLight(300, 360, false);  // droite
+ TrafficLight leftLight = new TrafficLight(320, 322, false);   // gauche
+ TrafficLight rightLight = new TrafficLight(320, 478, false);  // droite
         // Ajouter les cercles au Pane
-        pane.getChildren().addAll(topLight.light,downLight.light,leftLight.light);
+        pane.getChildren().addAll(topLight.light,downLight.light,leftLight.light,rightLight.light);
 
         // Ajouter à la liste pour pouvoir gérer facilement
         lights.add(topLight);
