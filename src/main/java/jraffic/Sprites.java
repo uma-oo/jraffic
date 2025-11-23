@@ -17,17 +17,12 @@ public class Sprites {
     }
 
     public static int getFrameCount(Lane dir) {
-        switch (dir) {
-            case SOUTH:
-                return 8;
-            case EAST:
-                return 2;
-            case WEST:
-                return 2;
-            case NORTH:
-                return 2;
-        }
-        return 2;
+        return switch (dir) {
+            case SOUTH -> 8;
+            case EAST -> 2;
+            case WEST -> 2;
+            case NORTH -> 2;
+        };
     }
 
     public static Sprites load() {

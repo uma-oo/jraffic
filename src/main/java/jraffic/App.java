@@ -12,7 +12,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
@@ -22,19 +28,30 @@ import javafx.stage.Stage;
  */
 public class App extends Application {
 
-    static final double WIDTH = 800;
-    static final double HEIGHT = 800;
+    static final double WIDTH = 1000;
+    static final double HEIGHT = 1000;
     private static Scene scene;
 
     @Override
     public void start(Stage stage) throws IOException {
         // create the lines based on the width and the height of the stage
         // stage.setWidth(800);
+
+        // Bakcground
+        Background background = new Background(
+                new BackgroundImage(
+                        new Image(getClass().getResource("/assets/background.png").toString()),
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundRepeat.NO_REPEAT,
+                        BackgroundPosition.CENTER,
+                        BackgroundSize.DEFAULT));
+
         Pane pane = new Pane();
         // fps label
         Label label = new Label();
+        label.setStyle("-fx-background-color: WHITE;");
         pane.getChildren().add(label);
-        
+        pane.setBackground(background);
         pane.getChildren().addAll(setupRoutes());
         scene = new Scene(pane, WIDTH, HEIGHT);
 
@@ -87,7 +104,7 @@ public class App extends Application {
                 }
 
                 if (now - lastFpsTime >= 1_000_000_000L) {
-                    label.setText("FPS: " + frames);
+                    label.setText("FPS: " + frames + " ");
                     frames = 0;
                     lastFpsTime = now;
                 }
