@@ -9,7 +9,7 @@ public enum Direction {
     LEFT,
     RIGHT;
 
-    public Direction getDirection(ColorV color) {
+    public static Direction getDirection(ColorV color) {
         Direction direction = Direction.STRAIGHT;
         switch (color) {
             case BLUE:

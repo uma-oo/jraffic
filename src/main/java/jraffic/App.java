@@ -58,7 +58,7 @@ public class App extends Application {
                         break;
                 }
 
-                System.out.println(event.getCode());
+    
             }
         });
 
@@ -71,7 +71,7 @@ public class App extends Application {
         
 
         stage.setScene(scene);
-        // stage.setResizable(false);
+        stage.setResizable(false);
         stage.show();
     }
 
