@@ -80,7 +80,7 @@ public class App extends Application {
         }
 
         new AnimationTimer() {
-            private final int targetFps = 60;
+            private final int targetFps = 120;
             private final long frameInterval = 1_000_000_000L / targetFps;
 
             private long lastUpdate = 0;
