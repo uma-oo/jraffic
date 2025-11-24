@@ -30,8 +30,6 @@ public class Car {
 
     private Point position;
 
-    Sprites sprites = Sprites.load();
-
     public Car(KeyCode key, double height, double width, Pane pane) {
         heightScene = height;
         widthScene = width;
