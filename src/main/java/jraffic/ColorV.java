@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+
 import javafx.scene.paint.Color;
 
 public enum ColorV {
@@ -20,20 +21,10 @@ public enum ColorV {
     }
 
     public static Color getColor(ColorV color) {
-        Color newColor = Color.BLUE;
-        switch (color) {
-            case BLUE:
-                break;
-            case MAGENTA:
-                newColor = Color.MAGENTA;
-                break;
-            case YELLOW:
-                newColor = Color.YELLOW;
-                break;
-            default:
-                break;
-        }
-        return newColor;
-
+        return switch (color) {
+            case BLUE -> Color.BLUE;
+            case YELLOW -> Color.YELLOW;
+            case MAGENTA -> Color.MAGENTA;
+        };
     }
 }

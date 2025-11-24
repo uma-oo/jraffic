@@ -24,23 +24,11 @@ public enum Lane {
     // DirectionLane::East => (1, 0),
     // DirectionLane::North => (0, 1),
     public static Pair<Double, Double> getPixelsToAdd(Lane lane) {
-        Pair<Double, Double> pixels = new Pair<Double, Double>(0.0, 0.0);
-        switch (lane) {
-            case NORTH:
-                pixels = new Pair<Double, Double>(0.0, 1.0);
-                break;
-            case SOUTH:
-                pixels = new Pair<Double, Double>(0.0, -1.0);
-                break;
-            case WEST:
-                pixels = new Pair<Double, Double>(-1.0, 0.0);
-                break;
-            case EAST:
-                pixels = new Pair<Double, Double>(1.0, 0.0);
-                break;
-            default:
-                break;
-        }
-        return pixels;
+        return switch (lane) {
+            case NORTH -> new Pair<>(0.0, 1.0);
+            case SOUTH -> new Pair<>(0.0, -1.0);
+            case WEST -> new Pair<>(-1.0, 0.0);
+            case EAST -> new Pair<>(1.0, 0.0);
+        };
     }
 }

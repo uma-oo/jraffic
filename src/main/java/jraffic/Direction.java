@@ -10,22 +10,11 @@ public enum Direction {
     RIGHT;
 
     public static Direction getDirection(ColorV color) {
-        Direction direction = Direction.STRAIGHT;
-        switch (color) {
-            case BLUE:
-                break;
-            case YELLOW:
-                direction = Direction.RIGHT;
-                break;
-            case MAGENTA:
-                direction = Direction.LEFT;
-                break;
-            default:
-                break;
-        }
-        return direction;
+        return switch (color) {
+            case BLUE -> Direction.STRAIGHT;
+            case YELLOW -> Direction.RIGHT;
+            case MAGENTA -> Direction.LEFT;
+        };
     }
-
-    
 
 }

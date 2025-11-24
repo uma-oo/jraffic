@@ -3,6 +3,7 @@ package jraffic;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
@@ -17,12 +18,13 @@ public class Car {
     private ColorV color;
     private Direction direction;
     private Lane lane;
-    private double heightScene;
-    private double widthScene;
+    private final double heightScene;
+    private final double widthScene;
     private static final double WIDTH = 48;
     private static final double GAP = 60;
     private Rectangle rectangle;
     private boolean hasToStop = false;
+    private boolean hadCrossed;
 
     private static List<Car> cars = new ArrayList<>();
 
@@ -33,21 +35,25 @@ public class Car {
     public Car(KeyCode key, double height, double width, Pane pane) {
         heightScene = height;
         widthScene = width;
+        this.hadCrossed = false;
         setLane(key);
-        setColor(ColorV.randomColor());
-        setDirection(Direction.getDirection(getColor()));
-        setPosition(getLane());
+        this.color = ColorV.randomColor();
+        this.direction = (Direction.getDirection(getColor()));
+        setPosition(this.lane);
         if (!isSafe(lane, getPosition())) {
             return;
         }
-
         rectangle = new Rectangle(WIDTH, WIDTH);
         rectangle.setTranslateX(this.getPosition().getX());
         rectangle.setTranslateY(this.getPosition().getY());
         rectangle.setFill(ColorV.getColor(this.color));
         cars.add(this);
-        this.draw();
+
         pane.getChildren().add(rectangle);
+    }
+
+    public static List<Car> getCars() {
+        return cars;
     }
 
     // constructor
@@ -62,6 +68,14 @@ public class Car {
 
     public Lane getLane() {
         return this.lane;
+    }
+
+    public boolean getHadCrossed() {
+        return this.hadCrossed;
+    }
+
+    public void setHadCrossed() {
+        this.hadCrossed = true;
     }
 
     public Point getPosition() {
@@ -86,24 +100,27 @@ public class Car {
         this.direction = direction;
     }
 
+    public void setHasToStop(boolean hasToStop) {
+        this.hasToStop = hasToStop;
+    }
+
     public void setLane(KeyCode key) {
         switch (key) {
-            case UP:
+            case UP -> {
                 setLane(Lane.SOUTH);
-                break;
-            case DOWN:
+            }
+            case DOWN -> {
                 setLane(Lane.NORTH);
-                break;
-            case LEFT:
+            }
+            case LEFT -> {
                 setLane(Lane.WEST);
-                break;
-            case RIGHT:
+            }
+            case RIGHT -> {
                 setLane(Lane.EAST);
-                break;
-            case R:
+            }
+            case R -> {
                 setLane(Lane.randomLane());
-                break;
-
+            }
         }
     }
 
@@ -113,19 +130,18 @@ public class Car {
 
     public void setPosition(Lane lane) {
         switch (lane) {
-            case WEST:
+            case WEST -> {
                 setPosition(new Point(widthScene, heightScene / 2 - 50));
-                break;
-            case NORTH:
+            }
+            case NORTH -> {
                 setPosition(new Point(widthScene / 2 - 50, 0));
-                break;
-            case EAST:
+            }
+            case EAST -> {
                 setPosition(new Point(0, heightScene / 2));
-                break;
-            case SOUTH:
+            }
+            case SOUTH -> {
                 setPosition(new Point(widthScene / 2, heightScene - 50));
-                break;
-
+            }
         }
     }
 
@@ -142,66 +158,90 @@ public class Car {
     }
 
     public void update() {
+        // keep original safety check
+        if (!hadCrossed && hasToStop && isNotSafe()) {
+            return;
+        }
+
         Pair<Double, Double> delta = Lane.getPixelsToAdd(lane);
         Point current = this.getPosition();
         double newX = current.getX() + delta.getFirst();
         double newY = current.getY() + delta.getSecond();
         this.setPosition(new Point(newX, newY));
 
+        // precomputed intersection anchors
+        final double cx = widthScene / 2.0;
+        final double cy = heightScene / 2.0;
+
+        // read current pos once
+        Point pos = this.position;
+
         switch (this.direction) {
-            case LEFT:
-                if (this.position.getX() == widthScene / 2
-                        && this.position.getY() == heightScene / 2 - 50 && this.getLane() == Lane.SOUTH) {
-                    this.lane = Lane.WEST;
-                    this.direction = Direction.STRAIGHT;
-                } else if (this.position.getX() == widthScene / 2 - 50
-                        && this.position.getY() == heightScene / 2 && this.getLane() == Lane.NORTH) {
-                    this.lane = Lane.EAST;
-                    this.direction = Direction.STRAIGHT;
-                } else if (this.position.getX() == widthScene / 2
-                        && this.position.getY() == heightScene / 2 && this.getLane() == Lane.EAST) {
-                    this.lane = Lane.SOUTH;
-                    this.direction = Direction.STRAIGHT;
-                } else if (this.position.getX() == widthScene / 2 - 50
-                        && this.position.getY() == heightScene / 2 - 50 && this.getLane() == Lane.WEST) {
-                    this.lane = Lane.NORTH;
-                    this.direction = Direction.STRAIGHT;
+            case LEFT -> {
+                // SOUTH -> WEST when at (cx, cy - 50)
+                if (this.lane == Lane.SOUTH && near(pos.getX(), cx) && near(pos.getY(), cy - 50)) {
+                    turnTo(Lane.WEST);
                 }
-                break;
-            case RIGHT:
-                if (this.position.getX() == widthScene / 2
-                        && this.position.getY() == heightScene / 2 && this.getLane() == Lane.SOUTH) {
-                    this.lane = Lane.EAST;
-                    this.direction = Direction.STRAIGHT;
-                } else if (this.position.getX() == widthScene / 2 - 50
-                        && this.position.getY() == heightScene / 2 - 50 && this.getLane() == Lane.NORTH) {
-                    this.lane = Lane.WEST;
-                    this.direction = Direction.STRAIGHT;
-                } else if (this.position.getX() == widthScene / 2 - 50
-                        && this.position.getY() == heightScene / 2 && this.getLane() == Lane.EAST) {
-                    this.lane = Lane.NORTH;
-                    this.direction = Direction.STRAIGHT;
-                } else if (this.position.getX() == widthScene / 2
-                        && this.position.getY() == heightScene / 2 - 50 && this.getLane() == Lane.WEST) {
-                    this.lane = Lane.SOUTH;
-                    this.direction = Direction.STRAIGHT;
+                // NORTH -> EAST when at (cx - 50, cy)
+                else if (this.lane == Lane.NORTH && near(pos.getX(), cx - 50) && near(pos.getY(), cy)) {
+                    turnTo(Lane.EAST);
                 }
-                break;
+                // EAST -> SOUTH when at (cx, cy)
+                else if (this.lane == Lane.EAST && near(pos.getX(), cx) && near(pos.getY(), cy)) {
+                    turnTo(Lane.SOUTH);
+                }
+                // WEST -> NORTH when at (cx - 50, cy - 50)
+                else if (this.lane == Lane.WEST && near(pos.getX(), cx - 50) && near(pos.getY(), cy - 50)) {
+                    turnTo(Lane.NORTH);
+                }
+            }
 
-            default:
-                break;
+            case RIGHT -> {
+                // SOUTH -> EAST at (cx, cy)
+                if (this.lane == Lane.SOUTH && near(pos.getX(), cx) && near(pos.getY(), cy)) {
+                    turnTo(Lane.EAST);
+                }
+                // NORTH -> WEST at (cx - 50, cy - 50)
+                else if (this.lane == Lane.NORTH && near(pos.getX(), cx - 50) && near(pos.getY(), cy - 50)) {
+                    turnTo(Lane.WEST);
+                }
+                // EAST -> NORTH at (cx - 50, cy)
+                else if (this.lane == Lane.EAST && near(pos.getX(), cx - 50) && near(pos.getY(), cy)) {
+                    turnTo(Lane.NORTH);
+                }
+                // WEST -> SOUTH at (cx, cy - 50)
+                else if (this.lane == Lane.WEST && near(pos.getX(), cx) && near(pos.getY(), cy - 50)) {
+                    turnTo(Lane.SOUTH);
+                }
+            }
+
+            case STRAIGHT -> {
+                // mark crossed when reaching the straight crossing points
+                if ((this.lane == Lane.SOUTH && near(pos.getX(), cx) && near(pos.getY(), cy - 50))
+                        || (this.lane == Lane.NORTH && near(pos.getX(), cx - 50) && near(pos.getY(), cy))
+                        || (this.lane == Lane.EAST && near(pos.getX(), cx) && near(pos.getY(), cy))
+                        || (this.lane == Lane.WEST && near(pos.getX(), cx - 50) && near(pos.getY(), cy - 50))) {
+                    this.setHadCrossed();
+                }
+            }
         }
+    }
 
+    private boolean near(double a, double b) {
+        return Math.abs(a - b) <= 0.9;
+    }
+
+    // helper extracted to reduce duplication
+    private void turnTo(Lane newLane) {
+        this.lane = newLane;
+        this.direction = Direction.STRAIGHT;
+        this.setHadCrossed();
     }
 
     private boolean isOutOfBounds() {
         double x = position.getX();
         double y = position.getY();
         return x < -50 || x > widthScene + 50 || y < -50 || y > heightScene + 50;
-    }
-
-    private void checkCollision() {
-
     }
 
     public static void updateCars(Pane pane) {
@@ -239,9 +279,62 @@ public class Car {
                 return false;
             }
         }
-
         return true;
+    }
 
+    /// checks collision of the car with the line of the lane
+    public boolean isNotSafe() {
+
+        // filter cars based on which lane the cars belongs to !
+
+        List<Car> CARS_SOUTH = cars.stream().filter(car -> car.getLane() == Lane.SOUTH && car != this)
+                .collect(Collectors.toList());
+        List<Car> CARS_NORTH = cars.stream().filter(car -> car.getLane() == Lane.NORTH && car != this)
+                .collect(Collectors.toList());
+        List<Car> CARS_EAST = cars.stream().filter(car -> car.getLane() == Lane.EAST && car != this)
+                .collect(Collectors.toList());
+        List<Car> CARS_WEST = cars.stream().filter(car -> car.getLane() == Lane.WEST && car != this)
+                .collect(Collectors.toList());
+        // compare if one car has to stop if it reaches the line or if the distance of
+        // them is less than 10px
+
+        switch (getLane()) {
+            case SOUTH -> {
+                // System.out.println("inside the south");
+                for (Car c : CARS_SOUTH) {
+                    if (Math.abs(c.getPosition().getY() - this.getPosition().getY()) < GAP) {
+                        return true;
+                    }
+                }
+                return (this.getPosition().getY() == heightScene / 2 + 50);
+            }
+            case NORTH -> {
+                // System.out.println("inside the north");
+                for (Car c : CARS_NORTH) {
+                    if (Math.abs(c.getPosition().getY() - this.getPosition().getY()) < GAP) {
+                        return true;
+                    }
+                }
+                return (this.getPosition().getY() == heightScene / 2 - 100);
+            }
+            case EAST -> {
+                for (Car c : CARS_EAST) {
+                    if (Math.abs(c.getPosition().getX() - this.getPosition().getX()) < GAP) {
+                        return true;
+                    }
+                }
+                return (this.getPosition().getX() == widthScene / 2 - 100);
+            }
+            case WEST -> {
+                for (Car c : CARS_WEST) {
+                    if (Math.abs(c.getPosition().getX() - this.getPosition().getX()) < GAP) {
+                        return true;
+                    }
+                }
+                return (this.getPosition().getX() == widthScene / 2 + 50);
+            }
+        }
+        return false;
     }
 
 }

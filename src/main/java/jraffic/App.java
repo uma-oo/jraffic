@@ -8,8 +8,6 @@ import java.util.List;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -70,23 +68,25 @@ public class App extends Application {
                         car.draw();
                         break;
                     case ESCAPE:
-
                         System.exit(0);
-
                     default:
                         break;
                 }
-
             }
         });
 
-        AnimationTimer timer = new AnimationTimer() {
+        for (LightTraffic light : LightTraffic.geLightTraffics()) {
+            pane.getChildren().add(light.getRectangle());
+        }
+
+        new AnimationTimer() {
             private final int targetFps = 60;
             private final long frameInterval = 1_000_000_000L / targetFps;
 
             private long lastUpdate = 0;
             private long lastFpsTime = 0;
             private int frames = 0;
+            TrafficLightController ctrl = new TrafficLightController();
 
             @Override
             public void handle(long now) {
@@ -97,10 +97,11 @@ public class App extends Application {
                 }
 
                 while (now - lastUpdate >= frameInterval) {
-                    Car.updateCars(pane);
-
                     frames++;
                     lastUpdate += frameInterval;
+                    ctrl.update(now / 1_000_000L);
+                    LightTraffic.UpdateLights(pane);
+                    Car.updateCars(pane);
                 }
 
                 if (now - lastFpsTime >= 1_000_000_000L) {
@@ -109,16 +110,11 @@ public class App extends Application {
                     lastFpsTime = now;
                 }
             }
-        };
+        }.start();
 
-        timer.start();
         stage.setScene(scene);
         stage.setResizable(false);
         stage.show();
-    }
-
-    static void setRoot(String fxml) throws IOException {
-        scene.setRoot(loadFXML(fxml));
     }
 
     static List<Line> setupRoutes() {
@@ -133,11 +129,6 @@ public class App extends Application {
 
         lines.addAll(Arrays.asList(horizontal, horizontaRight, horizontalLeft, vertical, verticalLeft, verticalRight));
         return lines;
-    }
-
-    private static Parent loadFXML(String fxml) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource(fxml + ".fxml"));
-        return fxmlLoader.load();
     }
 
     public static void main(String[] args) {
